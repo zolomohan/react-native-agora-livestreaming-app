@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
-import RtcEngine from 'react-native-agora';
+import RtcEngine, { ChannelProfile } from 'react-native-agora';
 
 async function requestCameraAndAudioPermission() {
   try {
@@ -30,6 +30,7 @@ export default function Live(props) {
       'c7e742d5df23478285a9dc4f4ff62407',
     );
     AgoraEngine.current.enableVideo();
+    AgoraEngine.current.setChannelProfile(ChannelProfile.LiveBroadcasting);
   };
 
   useEffect(() => {
