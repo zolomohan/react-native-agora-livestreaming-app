@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
-import RtcEngine, { ChannelProfile } from 'react-native-agora';
+import RtcEngine, { ChannelProfile, ClientRole } from 'react-native-agora';
 
 async function requestCameraAndAudioPermission() {
   try {
@@ -24,6 +24,8 @@ async function requestCameraAndAudioPermission() {
 }
 
 export default function Live(props) {
+  const isBroadcaster = props.route.params.type === 'create';
+
   const AgoraEngine = useRef();
   const init = async () => {
     AgoraEngine.current = await RtcEngine.create(
@@ -31,6 +33,8 @@ export default function Live(props) {
     );
     AgoraEngine.current.enableVideo();
     AgoraEngine.current.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    if (isBroadcaster)
+      AgoraEngine.current.setClientRole(ClientRole.Broadcaster);
   };
 
   useEffect(() => {
