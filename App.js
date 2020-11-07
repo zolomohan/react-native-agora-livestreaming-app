@@ -1,7 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+} from 'react-native';
 
-export default function App() {
+export default function Home() {
+  const [joinChannel, setJoinChannel] = useState('');
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Livestream App</Text>
@@ -11,7 +19,18 @@ export default function App() {
         </TouchableOpacity>
       </View>
       <View style={styles.joinContainer}>
-        <TouchableOpacity style={styles.button}>
+        <TextInput
+          value={joinChannel}
+          onChangeText={setJoinChannel}
+          placeholder="Enter Livestream Id"
+          style={styles.joinChannelInput}
+        />
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {backgroundColor: joinChannel === '' ? '#555555' : '#78b0ff'},
+          ]}
+          disabled={joinChannel === ''}>
           <Text style={styles.buttonText}>Join</Text>
         </TouchableOpacity>
       </View>
@@ -44,6 +63,14 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     borderTopWidth: 1,
     borderColor: '#22222255',
+  },
+  joinChannelInput: {
+    backgroundColor: '#cccccc77',
+    width: '100%',
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    fontSize: 17,
+    textAlign: 'center',
   },
   button: {
     width: '100%',
