@@ -35,6 +35,11 @@ export default function Live(props) {
     AgoraEngine.current.setChannelProfile(ChannelProfile.LiveBroadcasting);
     if (isBroadcaster)
       AgoraEngine.current.setClientRole(ClientRole.Broadcaster);
+    AgoraEngine.current.addListener(
+      'JoinChannelSuccess',
+      (channel, uid, elapsed) =>
+        console.log('JoinChannelSuccess', channel, uid, elapsed),
+    );
   };
 
   useEffect(() => {
