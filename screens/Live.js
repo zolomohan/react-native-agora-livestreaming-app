@@ -5,6 +5,7 @@ import {
   View,
   PermissionsAndroid,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 
 import RtcEngine, {
@@ -13,6 +14,11 @@ import RtcEngine, {
   RtcLocalView,
   RtcRemoteView,
 } from 'react-native-agora';
+
+const dimensions = {
+  width: Dimensions.get('window').width,
+  height: Dimensions.get('window').height,
+};
 
 async function requestCameraAndAudioPermission() {
   try {
@@ -86,9 +92,20 @@ export default function Live(props) {
           <Text style={styles.loadingText}>Joining Stream, Please Wait</Text>
         </>
       ) : (
-        <View style={styles.container}>
-          <Text>Live</Text>
-        </View>
+        <>
+          {isBroadcaster ? (
+            <RtcLocalView.SurfaceView
+              style={styles.fullscreen}
+              channelId={props.route.params.channel}
+            />
+          ) : (
+            <RtcRemoteView.SurfaceView
+              uid={1}
+              style={styles.fullscreen}
+              channelId={props.route.params.channel}
+            />
+          )}
+        </>
       )}
     </View>
   );
@@ -103,5 +120,9 @@ const styles = StyleSheet.create({
   loadingText: {
     fontSize: 18,
     color: '#222',
+  },
+  fullscreen: {
+    width: dimensions.width,
+    height: dimensions.height,
   },
 });
