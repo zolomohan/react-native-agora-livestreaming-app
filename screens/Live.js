@@ -100,4 +100,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  loadingText: {
+    fontSize: 18,
+    color: '#222',
+  },
 });
