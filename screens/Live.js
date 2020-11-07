@@ -29,6 +29,7 @@ export default function Live(props) {
     AgoraEngine.current = await RtcEngine.create(
       'c7e742d5df23478285a9dc4f4ff62407',
     );
+    AgoraEngine.current.enableVideo();
   };
 
   useEffect(() => {
