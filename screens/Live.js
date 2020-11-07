@@ -1,6 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
-import RtcEngine, { ChannelProfile, ClientRole } from 'react-native-agora';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  PermissionsAndroid,
+  ActivityIndicator,
+} from 'react-native';
+
+import RtcEngine, {
+  ChannelProfile,
+  ClientRole,
+  RtcLocalView,
+  RtcRemoteView,
+} from 'react-native-agora';
 
 async function requestCameraAndAudioPermission() {
   try {
@@ -26,6 +38,8 @@ async function requestCameraAndAudioPermission() {
 export default function Live(props) {
   const isBroadcaster = props.route.params.type === 'create';
 
+  const [joined, setJoined] = useState(false);
+
   const AgoraEngine = useRef();
   const init = async () => {
     AgoraEngine.current = await RtcEngine.create(
@@ -37,8 +51,10 @@ export default function Live(props) {
       AgoraEngine.current.setClientRole(ClientRole.Broadcaster);
     AgoraEngine.current.addListener(
       'JoinChannelSuccess',
-      (channel, uid, elapsed) =>
-        console.log('JoinChannelSuccess', channel, uid, elapsed),
+      (channel, uid, elapsed) => {
+        console.log('JoinChannelSuccess', channel, uid, elapsed);
+        setJoined(true);
+      },
     );
   };
 
@@ -53,7 +69,6 @@ export default function Live(props) {
         uid,
       ),
     );
-    init();
     return () => {
       AgoraEngine.current.destroy();
     };
@@ -61,7 +76,20 @@ export default function Live(props) {
 
   return (
     <View style={styles.container}>
-      <Text>Live</Text>
+      {!joined ? (
+        <>
+          <ActivityIndicator
+            size={60}
+            color="#222"
+            style={styles.activityIndicator}
+          />
+          <Text style={styles.loadingText}>Joining Stream, Please Wait</Text>
+        </>
+      ) : (
+        <View style={styles.container}>
+          <Text>Live</Text>
+        </View>
+      )}
     </View>
   );
 }
