@@ -6,6 +6,8 @@ import {
   PermissionsAndroid,
   ActivityIndicator,
   Dimensions,
+  Share,
+  TouchableOpacity,
 } from 'react-native';
 
 import RtcEngine, {
@@ -43,6 +45,23 @@ async function requestCameraAndAudioPermission() {
 
 export default function Live(props) {
   const isBroadcaster = props.route.params.type === 'create';
+
+  const onShare = async () => {
+    try {
+      const result = await Share.share({ message: props.route.params.channel });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // dismissed
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const [joined, setJoined] = useState(false);
 
@@ -105,6 +124,9 @@ export default function Live(props) {
               channelId={props.route.params.channel}
             />
           )}
+          <TouchableOpacity style={styles.shareButton} onPress={onShare}>
+            <Text style={styles.shareText}>Share</Text>
+          </TouchableOpacity>
         </>
       )}
     </View>
@@ -124,5 +146,18 @@ const styles = StyleSheet.create({
   fullscreen: {
     width: dimensions.width,
     height: dimensions.height,
+  },
+  shareButton: {
+    position: 'absolute',
+    bottom: 0,
+    width: 200,
+    backgroundColor: '#fff',
+    marginBottom: 50,
+    paddingVertical: 13,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  shareText: {
+    fontSize: 17,
   },
 });
