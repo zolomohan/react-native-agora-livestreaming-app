@@ -15,11 +15,25 @@ import RtcEngine, {
   ClientRole,
   RtcLocalView,
   RtcRemoteView,
+  VideoRemoteState,
 } from 'react-native-agora';
 
 const dimensions = {
   width: Dimensions.get('window').width,
   height: Dimensions.get('window').height,
+};
+
+const videoStateMessage = (state) => {
+  switch (state) {
+    case VideoRemoteState.Stopped:
+      return 'Video turned off by Host';
+
+    case VideoRemoteState.Frozen:
+      return 'Connection Issue, Please Wait';
+
+    case VideoRemoteState.Failed:
+      return 'Network Error';
+  }
 };
 
 async function requestCameraAndAudioPermission() {
@@ -64,7 +78,9 @@ export default function Live(props) {
   };
 
   const [joined, setJoined] = useState(false);
-
+  const [broadcasterVideoState, setBroadcasterVideoState] = useState(
+    VideoRemoteState.Decoding,
+  );
   const AgoraEngine = useRef();
   const init = async () => {
     AgoraEngine.current = await RtcEngine.create(
@@ -74,6 +90,11 @@ export default function Live(props) {
     AgoraEngine.current.setChannelProfile(ChannelProfile.LiveBroadcasting);
     if (isBroadcaster)
       AgoraEngine.current.setClientRole(ClientRole.Broadcaster);
+
+    AgoraEngine.current.addListener('RemoteVideoStateChanged', (uid, state) => {
+      if (uid === 1) setBroadcasterVideoState(state);
+    });
+
     AgoraEngine.current.addListener(
       'JoinChannelSuccess',
       (channel, uid, elapsed) => {
@@ -101,6 +122,28 @@ export default function Live(props) {
     };
   }, []);
 
+  const renderHost = () =>
+    broadcasterVideoState === VideoRemoteState.Decoding ? (
+      <RtcRemoteView.SurfaceView
+        uid={1}
+        style={styles.fullscreen}
+        channelId={props.route.params.channel}
+      />
+    ) : (
+      <View style={styles.broadcasterVideoStateMessage}>
+        <Text style={styles.broadcasterVideoStateMessageText}>
+          {videoStateMessage(broadcasterVideoState)}
+        </Text>
+      </View>
+    );
+
+  const renderLocal = () => (
+    <RtcLocalView.SurfaceView
+      style={styles.fullscreen}
+      channelId={props.route.params.channel}
+    />
+  );
+
   return (
     <View style={styles.container}>
       {!joined ? (
@@ -114,18 +157,7 @@ export default function Live(props) {
         </>
       ) : (
         <>
-          {isBroadcaster ? (
-            <RtcLocalView.SurfaceView
-              style={styles.fullscreen}
-              channelId={props.route.params.channel}
-            />
-          ) : (
-            <RtcRemoteView.SurfaceView
-              uid={1}
-              style={styles.fullscreen}
-              channelId={props.route.params.channel}
-            />
-          )}
+          {isBroadcaster ? renderLocal() : renderHost()}
           <View style={styles.buttonContainer}>
             <TouchableOpacity style={styles.button} onPress={onShare}>
               <Text style={styles.buttonText}>Share</Text>
@@ -170,5 +202,19 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 17,
+  },
+  broadcasterVideoStateMessage: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#222',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flex: 1,
+  },
+  broadcasterVideoStateMessageText: {
+    color: '#fff',
+    fontSize: 20,
   },
 });
