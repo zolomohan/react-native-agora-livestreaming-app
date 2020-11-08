@@ -83,6 +83,8 @@ export default function Live(props) {
     );
   };
 
+  const onSwitchCamera = () => AgoraEngine.current.switchCamera();
+
   useEffect(() => {
     if (Platform.OS === 'android') requestCameraAndAudioPermission();
     const uid = isBroadcaster ? 1 : 0;
@@ -124,9 +126,14 @@ export default function Live(props) {
               channelId={props.route.params.channel}
             />
           )}
-          <TouchableOpacity style={styles.shareButton} onPress={onShare}>
-            <Text style={styles.shareText}>Share</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={onShare}>
+              <Text style={styles.buttonText}>Share</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={onSwitchCamera}>
+              <Text style={styles.buttonText}>Switch Camera</Text>
+            </TouchableOpacity>
+          </View>
         </>
       )}
     </View>
@@ -147,17 +154,21 @@ const styles = StyleSheet.create({
     width: dimensions.width,
     height: dimensions.height,
   },
-  shareButton: {
+  buttonContainer: {
+    flexDirection: 'row',
     position: 'absolute',
     bottom: 0,
-    width: 200,
+  },
+  button: {
+    width: 150,
     backgroundColor: '#fff',
     marginBottom: 50,
     paddingVertical: 13,
     borderRadius: 8,
     alignItems: 'center',
+    marginHorizontal: 10,
   },
-  shareText: {
+  buttonText: {
     fontSize: 17,
   },
 });
